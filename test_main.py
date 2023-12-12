@@ -2,6 +2,10 @@ from fastapi.testclient import TestClient
 from main import app
 
 
+class Item(BaseModel):
+    url: HttpUrl
+
+
 client = TestClient(app)
 
 def test_read_main():
