@@ -4,3 +4,4 @@ httpx
 tensorflow
 uvicorn
 pydantic
+tensorflow_hub
