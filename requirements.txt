@@ -5,3 +5,5 @@ tensorflow
 uvicorn
 pydantic
 tensorflow_hub
+pillow
+pandas

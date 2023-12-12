@@ -1,6 +1,5 @@
-# TF2 version
-#import tensorflow.compat.v2 as tf
 import tensorflow_hub as hub
+import tensorflow as tf
 
 from fastapi import FastAPI
 
@@ -11,9 +10,19 @@ from tensorflow.keras.applications.efficientnet import preprocess_input
 from tensorflow.keras.utils import get_file
 from tensorflow.keras.applications.efficientnet import decode_predictions
 
+from rembg import remove 
+from PIL import Image 
+
+import pandas as pd
+
+IMAGE_RES = 224 
+
+labels = pd.read_csv("labels_oiseaux.csv", sep=';', header=0, index_col=0)
+
 
 class Item(BaseModel):
     url: HttpUrl
+    # str: str
 
 
 app = FastAPI()
@@ -23,14 +32,33 @@ async def root():
     return {'message': 'Welcome!'}
 
 def load_model():
-    model = hub.KerasLayer('https://www.kaggle.com/models/google/aiy/frameworks/TensorFlow1/variations/vision-classifier-birds-v1/versions/1')
+    URL = 'https://www.kaggle.com/models/google/aiy/frameworks/TensorFlow1/variations/vision-classifier-birds-v1/versions/1'
+    bird = hub.KerasLayer(URL, input_shape=(IMAGE_RES, IMAGE_RES, 3))
+    bird.trainable=False
+    model=tf.keras.Sequential([bird])
     return model
 
-def preprocess_image(img):
-    x = image.img_to_array(img)
-    x = np.expand_dims(x, axis=0)
-    x = preprocess_input(x)
-    return x
+
+# def preprocess_image_to_tensor(item: Item):
+#     img = image.load_img(get_file('image', str(item.url)), target_size=(IMAGE_RES, IMAGE_RES))
+#     x = image.img_to_array(img)/255.0                                           
+#     x = np.expand_dims(x, axis=0)                                              
+#     return x
+
+# def remove_background(item: Item):
+#     #img = image.load_img(get_file('image', str(item.url)), target_size=(IMAGE_RES, IMAGE_RES))
+#     img = get_file('image', str(item.url))
+#     input = Image.open(img)
+#     output = remove(input)
+#     return output
+
+
+def preprocess_image_to_tensor(img_path):
+    img = image.load_img(img_path, target_size=(IMAGE_RES, IMAGE_RES))
+    x = image.img_to_array(img)/255.0                                    
+    x = np.expand_dims(x, axis=0)                                              
+    return x  
+   
 
 @app.post("/prediction/")
 async def get_net_image_prediction(item: Item):
@@ -38,17 +66,14 @@ async def get_net_image_prediction(item: Item):
         print(item.url)
         return {"message": "No image link provided"}
     
-    img = image.load_img(get_file('image', str(item.url)),target_size=(224, 224))
-  
+    label='name'
 
-    x = preprocess_image(img)
-    
+    print(type(output))
+    # x = preprocess_image_to_tensor(item.str)
+    # model = load_model()
+    # output = model.predict(x)
+    # prediction = np.argmax(tf.squeeze(output).numpy())
 
-    model = load_model()
-    pred = model.predict(x)
-    classes = decode_predictions(pred, top=1)[0]
-    for i in classes:
-        model_prediction = str(i[1])
-        model_prediction_confidence_score = str(i[2])
+    # return {'prediction': labels[label][prediction]}
 
-        return {"model-prediction": model_prediction, "model-prediction-confidence-score": model_prediction_confidence_score}
+
