@@ -5,8 +5,13 @@ import tensorflow_hub as hub
 from fastapi import FastAPI
 
 import numpy as np
+from pydantic import BaseModel, HttpUrl
 from tensorflow.keras.preprocessing import image
 from tensorflow.keras.applications.efficientnet import preprocess_input
+
+
+class Item(BaseModel):
+    url: HttpUrl
 
 
 app = FastAPI()
