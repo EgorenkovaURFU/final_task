@@ -67,3 +67,7 @@ async def get_net_image_prediction(item: Item):
     return {'prediction': labels[label][prediction]}
 
 
+if __name__ == "__main__":
+    uvicorn.run("main:app", host="127.0.0.1", port=5000)
+
+
