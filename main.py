@@ -11,6 +11,8 @@ import requests
 import pandas as pd
 import numpy as np
 
+import uvicorn
+
 
 IMAGE_RES = 224 
 
